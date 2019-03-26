@@ -34,6 +34,7 @@ public class Scheduler {
 	}
 	
 	private void createThread(int processID) {
+		System.out.println(processID);
 		this.threadList.add(processID, new Thread());
 	}
 
@@ -103,6 +104,17 @@ public class Scheduler {
 			case RR:
 				createThread(processID);
 				
+				if(threadList.size() == 1) {
+					currentProc = processID;
+					processExecution.switchToProcess(currentProc);
+				}
+				
+				if(processExecution.getProcessInfo(currentProc).elapsedExecutionTime == quantum ||
+				   processExecution.getProcessInfo(currentProc).elapsedExecutionTime == 
+				   processExecution.getProcessInfo(currentProc).totalServiceTime) {
+					System.out.println(quantum);
+				}
+				
 				for(int i = 0; i < threadList.size(); i++) {
 					System.out.println(threadList.get(i));
 				}
@@ -142,13 +154,7 @@ public class Scheduler {
 				System.out.println("SPN");
 				break;
 		}
-
-		
-		//System.out.println(processExecution.getProcessInfo(currentProc).totalServiceTime - processExecution.getProcessInfo(currentProc).elapsedExecutionTime);
-		//System.out.println((processExecution.getProcessInfo(processID).totalServiceTime- processExecution.getProcessInfo(processID).elapsedExecutionTime));
-		//}else if (policy == SRT) {
-		
-		}
+	}
 		/**
 		 * Add scheduling code here
 		 */
@@ -189,7 +195,17 @@ public class Scheduler {
 				}
 				
 				break;
-		}
+			
+			case RR:
+				threadList.remove(threadList.get(processID));
+				System.out.println("PISS");
+				
+				if(listproc.size() != 0) {
+					processExecution.switchToProcess(processID - 1);
+				}
+				
+				break;
+		}	
 		
 		/**
 		 * Add scheduling code here

@@ -7,7 +7,6 @@ package com.ru.usty.scheduling.process;
  */
 
 public class ProcessInfo {
-
 	public long elapsedWaitingTime;
 	public long elapsedExecutionTime;
 	public long totalServiceTime;
