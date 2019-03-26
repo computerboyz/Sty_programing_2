@@ -106,6 +106,8 @@ public class Scheduler {
 				for(int i = 0; i < threadList.size(); i++) {
 					System.out.println(threadList.get(i));
 				}
+				
+				break;
 
 			case FCFS:
 				listproc.add(processID);
@@ -114,15 +116,31 @@ public class Scheduler {
 					currentProc = processID;
 					processExecution.switchToProcess(processID);
 				}
-
-				if((processExecution.getProcessInfo(processID).totalServiceTime - 
-					processExecution.getProcessInfo(processID).elapsedExecutionTime) < 
-					(processExecution.getProcessInfo(currentProc).totalServiceTime - 
-					processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {
-					
-					processExecution.switchToProcess(processID);
+				
+				break;
+				
+			case SRT:
+				listproc.add(processID);
+				
+				if (listproc.size() == 1) {
 					currentProc = processID;
+					processExecution.switchToProcess(processID);
 				}
+				
+				if((processExecution.getProcessInfo(processID).totalServiceTime - 
+						processExecution.getProcessInfo(processID).elapsedExecutionTime) < 
+						(processExecution.getProcessInfo(currentProc).totalServiceTime - 
+						processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {
+						
+						processExecution.switchToProcess(processID);
+						currentProc = processID;
+				}
+				
+				break;
+				
+			case SPN:
+				System.out.println("SPN");
+				break;
 		}
 
 		
@@ -141,19 +159,38 @@ public class Scheduler {
 	 * DO NOT CHANGE DEFINITION OF OPERATION
 	 */
 	public void processFinished(int processID) {
-//		if(policy ==  SRT) {
-		listproc.remove(listproc.indexOf(processID));
-		if(listproc.size() != 0) {
-		currentProc = listproc.get(listproc.size()-1);
-		for(int i = 0; i < listproc.size(); i++) {
-			int id = listproc.get(i);
-			if((processExecution.getProcessInfo(id).totalServiceTime - processExecution.getProcessInfo(id).elapsedExecutionTime) < (processExecution.getProcessInfo(currentProc).totalServiceTime - processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {	
-					currentProc = id;
-				}}
-		processExecution.switchToProcess(currentProc);
-		}
+		switch(this.policy) {
+			case SRT:
+				listproc.remove(listproc.indexOf(processID));
+				
+				if(listproc.size() != 0) {					
+					currentProc = listproc.get(listproc.size()-1);
+				
+					for(int i = 0; i < listproc.size(); i++) {
+						int id = listproc.get(i);
+						
+						if((processExecution.getProcessInfo(id).totalServiceTime - 
+							processExecution.getProcessInfo(id).elapsedExecutionTime) < 
+							(processExecution.getProcessInfo(currentProc).totalServiceTime - 
+							processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {	
+							currentProc = id;
+						}
+					}
+					
+					processExecution.switchToProcess(currentProc);
+				}
+				break;
 			
-//		}
+			case FCFS:
+				listproc.remove(listproc.indexOf(processID));
+				
+				if(listproc.size() != 0) {
+					processExecution.switchToProcess(processID + 1);
+				}
+				
+				break;
+		}
+		
 		/**
 		 * Add scheduling code here
 		 */
