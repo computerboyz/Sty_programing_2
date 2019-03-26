@@ -1,17 +1,18 @@
 package com.ru.usty.scheduling;
 
 import com.ru.usty.scheduling.process.ProcessExecution;
+import com.ru.usty.scheduling.process.ProcessThread;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class Scheduler {
-
 	ProcessExecution processExecution;
 	Policy policy;
 	int quantum;
 	int currentProc;
-	List<Integer> listproc = new ArrayList<Integer>();
-	ArrayList<Thread> threadList;
+	public List<Integer> listproc = new ArrayList<Integer>();
+	List<ProcessThread> threadList;
 
 	/**
 	 * Add any objects and variables here (if needed)
@@ -24,18 +25,48 @@ public class Scheduler {
 	public Scheduler(ProcessExecution processExecution) {
 		this.processExecution = processExecution;
 		 
-		/**
-		 * Add general initialization code here (if needed)
-		 */
 	}
 
 	private void initializeRR() {
-		this.threadList = new ArrayList<Thread>();
+		this.threadList = new ArrayList<ProcessThread>();
 	}
 	
 	private void createThread(int processID) {
-		System.out.println(processID);
-		this.threadList.add(processID, new Thread());
+		ProcessThread thread = new ProcessThread(processID, this, quantum);
+		Thread newThread = new Thread(thread);
+		
+		newThread.start();
+		this.threadList.add(thread);
+	}
+	
+	public ProcessExecution getExecutionInfo() {
+		return processExecution;
+	}
+	
+	public boolean roundRobinSwitch() {
+		if(listproc.size() > 1) {
+			int lowestID = listproc.get(0);
+			
+			for(int i = 1; i < listproc.size(); i++) {
+				if((processExecution.getProcessInfo(listproc.get(i)).totalServiceTime - 
+					processExecution.getProcessInfo(listproc.get(i)).elapsedExecutionTime) < 
+					(processExecution.getProcessInfo(lowestID).totalServiceTime - 
+					processExecution.getProcessInfo(lowestID).elapsedExecutionTime)) {	
+						lowestID = listproc.get(i);
+				}
+			}
+				
+			currentProc = lowestID;
+			processExecution.switchToProcess(lowestID);
+			
+			processExecution.switchToProcess(currentProc);
+			
+			return true;
+		}
+		
+		else {
+			return false;
+		}
 	}
 
 	/**
@@ -46,9 +77,6 @@ public class Scheduler {
 		this.policy = policy;
 		this.quantum = quantum;
 
-		/**
-		 * Add general initialization code here (if needed)
-		 */
 
 		switch(policy) {
 		case FCFS:	//First-come-first-served
@@ -60,6 +88,7 @@ public class Scheduler {
 		case RR:	//Round robin
 			System.out.println("Starting new scheduling task: Round robin, quantum = " + quantum);
 			initializeRR();
+			listproc = new ArrayList<Integer>();
 			/**
 			 * Add your policy specific initialization code here (if needed)
 			 */
@@ -96,28 +125,18 @@ public class Scheduler {
 
 	}
 
-	/**
-	 * DO NOT CHANGE DEFINITION OF OPERATION
-	 */
 	public void processAdded(int processID) {
 		switch(this.policy) {
 			case RR:
 				createThread(processID);
+				listproc.add(processID);
 				
-				if(threadList.size() == 1) {
+				if(listproc.size() == 1) {
 					currentProc = processID;
 					processExecution.switchToProcess(currentProc);
-				}
-				
-				if(processExecution.getProcessInfo(currentProc).elapsedExecutionTime == quantum ||
-				   processExecution.getProcessInfo(currentProc).elapsedExecutionTime == 
-				   processExecution.getProcessInfo(currentProc).totalServiceTime) {
-					System.out.println(quantum);
-				}
-				
-				for(int i = 0; i < threadList.size(); i++) {
-					System.out.println(threadList.get(i));
-				}
+					
+					threadList.get(processID).runProcess();
+				}			
 				
 				break;
 
@@ -155,15 +174,7 @@ public class Scheduler {
 				break;
 		}
 	}
-		/**
-		 * Add scheduling code here
-		 */
 
-	//}
-
-	/**
-	 * DO NOT CHANGE DEFINITION OF OPERATION
-	 */
 	public void processFinished(int processID) {
 		switch(this.policy) {
 			case SRT:
@@ -197,18 +208,30 @@ public class Scheduler {
 				break;
 			
 			case RR:
-				threadList.remove(threadList.get(processID));
-				System.out.println("PISS");
+				listproc.remove(listproc.indexOf(processID));
 				
-				if(listproc.size() != 0) {
-					processExecution.switchToProcess(processID - 1);
+				if(listproc.size() > 1) {
+					int lowestID = listproc.get(0);
+					
+					for(int i = 1; i < listproc.size(); i++) {
+						if((processExecution.getProcessInfo(listproc.get(i)).totalServiceTime - 
+							processExecution.getProcessInfo(listproc.get(i)).elapsedExecutionTime) < 
+							(processExecution.getProcessInfo(lowestID).totalServiceTime - 
+							processExecution.getProcessInfo(lowestID).elapsedExecutionTime)) {	
+								lowestID = listproc.get(i);
+						}
+					}
+						
+					currentProc = lowestID;
+					processExecution.switchToProcess(lowestID);					
 				}
-				
-				break;
-		}	
-		
-		/**
-		 * Add scheduling code here
-		 */
+					
+				else if(listproc.size() == 1) {
+					currentProc = listproc.get(0);
+					processExecution.switchToProcess(currentProc);
+				}				
+		}
 	}
-	}
+}
+
+
