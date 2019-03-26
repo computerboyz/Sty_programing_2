@@ -11,6 +11,7 @@ public class Scheduler {
 	int quantum;
 	int currentProc;
 	List<Integer> listproc = new ArrayList<Integer>();
+	ArrayList<Thread> threadList;
 
 	/**
 	 * Add any objects and variables here (if needed)
@@ -22,10 +23,18 @@ public class Scheduler {
 	 */
 	public Scheduler(ProcessExecution processExecution) {
 		this.processExecution = processExecution;
-		Thread RR; 
+		 
 		/**
 		 * Add general initialization code here (if needed)
 		 */
+	}
+
+	private void initializeRR() {
+		this.threadList = new ArrayList<Thread>();
+	}
+	
+	private void createThread(int processID) {
+		this.threadList.add(processID, new Thread());
 	}
 
 	/**
@@ -49,6 +58,7 @@ public class Scheduler {
 			break;
 		case RR:	//Round robin
 			System.out.println("Starting new scheduling task: Round robin, quantum = " + quantum);
+			initializeRR();
 			/**
 			 * Add your policy specific initialization code here (if needed)
 			 */
@@ -89,19 +99,37 @@ public class Scheduler {
 	 * DO NOT CHANGE DEFINITION OF OPERATION
 	 */
 	public void processAdded(int processID) {
-		listproc.add(processID);
-//		if(policy == FCFS) {
-		if (listproc.size() == 1) {
-			currentProc = processID;
-			processExecution.switchToProcess(processID);
+		switch(this.policy) {
+			case RR:
+				createThread(processID);
+				
+				for(int i = 0; i < threadList.size(); i++) {
+					System.out.println(threadList.get(i));
+				}
+
+			case FCFS:
+				listproc.add(processID);
+				//if(policy == FCFS) {
+				if (listproc.size() == 1) {
+					currentProc = processID;
+					processExecution.switchToProcess(processID);
+				}
+
+				if((processExecution.getProcessInfo(processID).totalServiceTime - 
+					processExecution.getProcessInfo(processID).elapsedExecutionTime) < 
+					(processExecution.getProcessInfo(currentProc).totalServiceTime - 
+					processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {
+					
+					processExecution.switchToProcess(processID);
+					currentProc = processID;
+				}
 		}
+
+		
 		//System.out.println(processExecution.getProcessInfo(currentProc).totalServiceTime - processExecution.getProcessInfo(currentProc).elapsedExecutionTime);
 		//System.out.println((processExecution.getProcessInfo(processID).totalServiceTime- processExecution.getProcessInfo(processID).elapsedExecutionTime));
 		//}else if (policy == SRT) {
-		if((processExecution.getProcessInfo(processID).totalServiceTime- processExecution.getProcessInfo(processID).elapsedExecutionTime) < (processExecution.getProcessInfo(currentProc).totalServiceTime - processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {
-			processExecution.switchToProcess(processID);
-			currentProc = processID;
-		}
+		
 		}
 		/**
 		 * Add scheduling code here
