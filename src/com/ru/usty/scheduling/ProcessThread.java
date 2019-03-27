@@ -1,11 +1,16 @@
 package com.ru.usty.scheduling;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class ProcessThread implements Runnable {
 	private Scheduler scheduler;
 	
+	private volatile long currentTime;
+	private volatile long timeLeft;
+	
 	private long timeTotal;
 	private long timeElapsed;
-	private long currentTime;
 	
 	public int id;
 	private int quantum;
@@ -16,6 +21,9 @@ public class ProcessThread implements Runnable {
 		this.scheduler = scheduler;
 		this.quantum = quantum;
 		this.id = id;
+		this.timeLeft = scheduler.getExecutionInfo().getProcessInfo(id).totalServiceTime;
+		//this.currentTime = System.currentTimeMillis();
+		this.currentTime = 0;
 	}
 	
 	public int getID() {
@@ -24,31 +32,33 @@ public class ProcessThread implements Runnable {
 	
 	public void runProcess() {
 		System.out.println("Process " + id + " running");
-		currentTime = System.nanoTime();
+		currentTime = System.currentTimeMillis();
 		isRunning = true;
 	}
 	
 	@Override
-	public void run() {
-		long timeLeft = scheduler.getExecutionInfo().getProcessInfo(id).totalServiceTime;
-		
+	public void run() {		
 		while(timeLeft > 0) {
-			timeTotal = scheduler.getExecutionInfo().getProcessInfo(id).totalServiceTime;
 			timeElapsed = scheduler.getExecutionInfo().getProcessInfo(id).elapsedExecutionTime;
 			
-			long a = System.nanoTime();
-			long currentTimeElapsed = (a - currentTime)/1000;
 			
-			System.out.println("process " + id + ": " + currentTimeElapsed);
+			long a = System.currentTimeMillis();
 			
-			if(currentTimeElapsed >= quantum) {				
+			if(currentTime == 0) {
+				currentTime = a;
+			}
+			
+			long currentTimeElapsed = (a - currentTime);
+			
+			if(currentTimeElapsed >= quantum) {
+				System.out.println("process " + id + ": " + currentTimeElapsed);
 				int newID = scheduler.roundRobinSwitch(); 
 				
 				if(newID == id) {
-					currentTime = System.nanoTime();
+					currentTime = System.currentTimeMillis();
 					isRunning = true;
 				} else {
-					currentTime = 0;
+					//currentTime = 0;
 					isRunning = false;
 				}
 			}

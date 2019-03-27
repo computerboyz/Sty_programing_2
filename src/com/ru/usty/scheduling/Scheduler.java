@@ -127,7 +127,7 @@ public class Scheduler {
 				listproc.add(processID);
 				
 				if(listproc.size() == 1) {
-					currentProc = listproc.get(processID);
+					currentProc = processID;
 					
 					processExecution.switchToProcess(currentProc);
 					threadList.get(currentProc).runProcess();
