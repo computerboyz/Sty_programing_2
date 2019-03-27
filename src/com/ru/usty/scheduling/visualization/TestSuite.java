@@ -47,6 +47,8 @@ public class TestSuite {
 
 	private static void initTestProcesses() {
 		testProcesses = new ArrayList<ProcessDescription>();
+		
+		/*
 
 		testProcesses.add(new ProcessDescription(0, 1500));
 		testProcesses.add(new ProcessDescription(1000, 3000));
@@ -63,6 +65,14 @@ public class TestSuite {
 		testProcesses.add(new ProcessDescription(18000, 500));
 		testProcesses.add(new ProcessDescription(18000, 1500));
 		testProcesses.add(new ProcessDescription(18500, 500));
+		
+		*/
+		
+		//MUNA AÐ REMOVA Í GUÐANNA BÆNUM MUNA AÐ REMOVA
+		
+		testProcesses.add(new ProcessDescription(0, 5000));
+		testProcesses.add(new ProcessDescription(1400, 3000));
+		testProcesses.add(new ProcessDescription(1800, 2000));
 	}
 
 	private static void startScheduling(Policy policy, int quantum) {

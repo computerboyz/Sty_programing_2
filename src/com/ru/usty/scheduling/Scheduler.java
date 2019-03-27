@@ -1,7 +1,6 @@
 package com.ru.usty.scheduling;
 
 import com.ru.usty.scheduling.process.ProcessExecution;
-import com.ru.usty.scheduling.process.ProcessThread;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -43,30 +42,26 @@ public class Scheduler {
 		return processExecution;
 	}
 	
-	public boolean roundRobinSwitch() {
-		if(listproc.size() > 1) {
-			int lowestID = listproc.get(0);
-			
-			for(int i = 1; i < listproc.size(); i++) {
-				if((processExecution.getProcessInfo(listproc.get(i)).totalServiceTime - 
-					processExecution.getProcessInfo(listproc.get(i)).elapsedExecutionTime) < 
-					(processExecution.getProcessInfo(lowestID).totalServiceTime - 
-					processExecution.getProcessInfo(lowestID).elapsedExecutionTime)) {	
-						lowestID = listproc.get(i);
-				}
-			}
-				
-			currentProc = lowestID;
-			processExecution.switchToProcess(lowestID);
-			
-			processExecution.switchToProcess(currentProc);
-			
-			return true;
-		}
+	public int roundRobinSwitch() {
+		System.out.println("Checking switch");
 		
-		else {
-			return false;
+		for(int i = 0; i < listproc.size(); i++) {
+			int id = listproc.get(i);
+			
+			if((processExecution.getProcessInfo(id).totalServiceTime - 
+				processExecution.getProcessInfo(id).elapsedExecutionTime) < 
+				(processExecution.getProcessInfo(currentProc).totalServiceTime - 
+				processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {	
+								
+				System.out.println("KJAHKSJDHAKSJHDKJH");
+				currentProc = id;
+			}
 		}
+			
+		processExecution.switchToProcess(currentProc);
+		threadList.get(currentProc).runProcess();			
+		
+		return currentProc;
 	}
 
 	/**
@@ -132,10 +127,10 @@ public class Scheduler {
 				listproc.add(processID);
 				
 				if(listproc.size() == 1) {
-					currentProc = processID;
-					processExecution.switchToProcess(currentProc);
+					currentProc = listproc.get(processID);
 					
-					threadList.get(processID).runProcess();
+					processExecution.switchToProcess(currentProc);
+					threadList.get(currentProc).runProcess();
 				}			
 				
 				break;
@@ -223,12 +218,14 @@ public class Scheduler {
 					}
 						
 					currentProc = lowestID;
-					processExecution.switchToProcess(lowestID);					
+					processExecution.switchToProcess(currentProc);
+					threadList.get(currentProc).runProcess();
 				}
 					
 				else if(listproc.size() == 1) {
 					currentProc = listproc.get(0);
 					processExecution.switchToProcess(currentProc);
+					threadList.get(currentProc).runProcess();
 				}				
 		}
 	}
