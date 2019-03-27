@@ -165,7 +165,20 @@ public class Scheduler {
 				break;
 				
 			case SPN:
-				System.out.println("SPN");
+				listproc.add(processID);
+				
+				if(listproc.size() == 1) {
+					currentProc = processID;
+					processExecution.switchToProcess(processID);
+				}
+				
+				if(processExecution.getProcessInfo(processID).totalServiceTime 
+					< processExecution.getProcessInfo(currentProc).totalServiceTime) {
+					
+					processExecution.switchToProcess(processID);
+					currentProc = processID;
+				}
+				
 				break;
 		}
 	}
@@ -226,7 +239,14 @@ public class Scheduler {
 					currentProc = listproc.get(0);
 					processExecution.switchToProcess(currentProc);
 					threadList.get(currentProc).runProcess();
-				}				
+				}		
+				
+				break;
+			
+			case SPN:
+				
+				break;
+				
 		}
 	}
 }
