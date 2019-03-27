@@ -43,7 +43,7 @@ public class Scheduler {
 	}
 	
 	public int roundRobinSwitch() {
-		System.out.println("Checking switch");
+		//System.out.println("Checking switch");
 		
 		for(int i = 0; i < listproc.size(); i++) {
 			int id = listproc.get(i);
@@ -53,7 +53,7 @@ public class Scheduler {
 				(processExecution.getProcessInfo(currentProc).totalServiceTime - 
 				processExecution.getProcessInfo(currentProc).elapsedExecutionTime)) {	
 								
-				System.out.println("KJAHKSJDHAKSJHDKJH");
+				//System.out.println("KJAHKSJDHAKSJHDKJH");
 				currentProc = id;
 			}
 		}
@@ -244,6 +244,22 @@ public class Scheduler {
 				break;
 			
 			case SPN:
+				listproc.remove(listproc.indexOf(processID));
+				
+				if(listproc.size() != 0) {					
+					currentProc = listproc.get(listproc.size()-1);
+				
+					for(int i = 0; i < listproc.size(); i++) {
+						int id = listproc.get(i);
+						
+						if(processExecution.getProcessInfo(id).totalServiceTime < 
+							processExecution.getProcessInfo(currentProc).totalServiceTime) {	
+							currentProc = id;
+						}
+					}
+					
+					processExecution.switchToProcess(currentProc);
+				}
 				
 				break;
 				

@@ -13,7 +13,7 @@ public class ProcessThread implements Runnable {
 	private long timeElapsed;
 	
 	public int id;
-	private int quantum;
+	private long quantum;
 	
 	private boolean isRunning;
 	
@@ -31,7 +31,7 @@ public class ProcessThread implements Runnable {
 	}
 	
 	public void runProcess() {
-		System.out.println("Process " + id + " running");
+		//System.out.println("Process " + id + " running");
 		currentTime = System.currentTimeMillis();
 		isRunning = true;
 	}
@@ -58,7 +58,7 @@ public class ProcessThread implements Runnable {
 					currentTime = System.currentTimeMillis();
 					isRunning = true;
 				} else {
-					//currentTime = 0;
+					currentTime = 0;
 					isRunning = false;
 				}
 			}
